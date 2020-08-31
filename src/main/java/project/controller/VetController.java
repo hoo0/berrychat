@@ -15,11 +15,11 @@
  */
 package project.controller;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
 
 import project.model.Vets;
 import project.repository.VetRepository;
@@ -33,10 +33,10 @@ import project.repository.VetRepository;
 @Controller
 class VetController {
 
-	private final VetRepository vets;
+	private final VetRepository vetRespository;
 
-	public VetController(VetRepository clinicService) {
-		this.vets = clinicService;
+	public VetController(VetRepository vetRespository) {
+		this.vetRespository = vetRespository;
 	}
 
 	@GetMapping("/vets.html")
@@ -44,7 +44,7 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vets.findAll());
+		vets.getVetList().addAll(this.vetRespository.findAll());
 		model.put("vets", vets);
 		return "vets/vetList";
 	}
@@ -54,7 +54,7 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vets.findAll());
+		vets.getVetList().addAll(this.vetRespository.findAll());
 		return vets;
 	}
 

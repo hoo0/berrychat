@@ -46,13 +46,13 @@ class OwnerController {
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
-	private final OwnerRepository owners;
+	private final OwnerRepository ownerRepository;
 
-	private VisitRepository visits;
+	private VisitRepository visitRepository;
 
-	public OwnerController(OwnerRepository clinicService, VisitRepository visits) {
-		this.owners = clinicService;
-		this.visits = visits;
+	public OwnerController(OwnerRepository ownerRepository, VisitRepository visitRepository) {
+		this.ownerRepository = ownerRepository;
+		this.visitRepository = visitRepository;
 	}
 
 	@InitBinder
@@ -73,7 +73,7 @@ class OwnerController {
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			this.owners.save(owner);
+			this.ownerRepository.save(owner);
 			return "redirect:/owners/" + owner.getId();
 		}
 	}
@@ -93,7 +93,7 @@ class OwnerController {
 		}
 
 		// find owners by last name
-		Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
+		Collection<Owner> results = this.ownerRepository.findByLastName(owner.getLastName());
 		if (results.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
@@ -113,7 +113,7 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-		Owner owner = this.owners.findById(ownerId);
+		Owner owner = this.ownerRepository.findById(ownerId);
 		model.addAttribute(owner);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
@@ -126,7 +126,7 @@ class OwnerController {
 		}
 		else {
 			owner.setId(ownerId);
-			this.owners.save(owner);
+			this.ownerRepository.save(owner);
 			return "redirect:/owners/{ownerId}";
 		}
 	}
@@ -139,9 +139,9 @@ class OwnerController {
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
-		Owner owner = this.owners.findById(ownerId);
+		Owner owner = this.ownerRepository.findById(ownerId);
 		for (Pet pet : owner.getPets()) {
-			pet.setVisitsInternal(visits.findByPetId(pet.getId()));
+			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
 		}
 		mav.addObject(owner);
 		return mav;

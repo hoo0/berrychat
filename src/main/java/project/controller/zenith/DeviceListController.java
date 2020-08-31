@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package project.controller;
+package project.controller.zenith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import project.service.ZenithService;
 
 @Controller
-class WelcomeController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@GetMapping("/")
-	public String welcome() {
-        logger.trace("Trace Level 테스트");
-        logger.debug("debug Level 테스트");
-        logger.info("info Level 테스트");
-        logger.warn("Warn Level 테스트");
-        logger.error("error Level 테스트");
-
-		return "welcome";
+class DeviceListController {
+    
+    @Autowired
+    ZenithService zenithService;
+    
+	@GetMapping( "/api/zenith/deviceList")
+    @ResponseBody
+	public Object zenithDeviceList() {
+        
+        Object response =  zenithService.deviceList();
+        return response;
 	}
 
 }

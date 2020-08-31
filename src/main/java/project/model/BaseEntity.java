@@ -29,11 +29,11 @@ import javax.persistence.MappedSuperclass;
  * @author Ken Krebs
  * @author Juergen Hoeller
  */
-@MappedSuperclass
+@MappedSuperclass /* 공통매핑정보 */
 public class BaseEntity implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) /* IDENTITY:DB위임 SEQUENCE:시퀀스 TABLE:키생성테이블 */
 	private Integer id;
 
 	public Integer getId() {

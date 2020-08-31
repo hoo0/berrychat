@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
-import project.model.Person;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -41,14 +40,15 @@ import project.model.Person;
  * @author Sam Brannen
  * @author Arjen Poutsma
  */
-@Entity
+@Entity /* @Entity 클래스는 @Entity나 @MappedSuperclass 클래스만 상속 가능 */
 @Table(name = "vets")
 public class Vet extends Person {
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
-			inverseJoinColumns = @JoinColumn(name = "specialty_id"))
-	private Set<Specialty> specialties;
+	@ManyToMany(fetch = FetchType.EAGER) /* 다대다는 조인테이블의 두컬럼에 유니크제약조건이 걸려있어야 한다 */
+	@JoinTable(name = "vet_specialties",
+        joinColumns = @JoinColumn(name = "vet_id"), /* 현재 클래스의 id와 연결 */
+		inverseJoinColumns = @JoinColumn(name = "specialty_id"))
+	private Set<Specialty> specialties; /* ManyToMany 경우 List는 새로 insert가 발생 -> Set을 사용 */
 
 	protected Set<Specialty> getSpecialtiesInternal() {
 		if (this.specialties == null) {
@@ -61,7 +61,7 @@ public class Vet extends Person {
 		this.specialties = specialties;
 	}
 
-	@XmlElement
+	//@XmlElement
 	public List<Specialty> getSpecialties() {
 		List<Specialty> sortedSpecs = new ArrayList<>(getSpecialtiesInternal());
 		PropertyComparator.sort(sortedSpecs, new MutableSortDefinition("name", true, true));

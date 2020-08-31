@@ -15,6 +15,9 @@
  */
 package project.controller;
 
+import javax.validation.Valid;
+import java.util.Collection;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -22,8 +25,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import project.model.Owner;
 import project.model.Pet;
@@ -31,6 +34,7 @@ import project.model.PetType;
 import project.model.PetValidator;
 import project.repository.OwnerRepository;
 import project.repository.PetRepository;
+import project.repository.PetTypeRepository;
 
 /**
  * @author Juergen Hoeller
@@ -40,26 +44,32 @@ import project.repository.PetRepository;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
-	private final PetRepository pets;
+	private final PetRepository petRepository;
+    private final PetTypeRepository petTypeRepository;
+	private final OwnerRepository ownerRepository;
 
-	private final OwnerRepository owners;
-
-	public PetController(PetRepository pets, OwnerRepository owners) {
-		this.pets = pets;
-		this.owners = owners;
+	public PetController(PetRepository petRepository,
+                         OwnerRepository ownerRepository,
+                         PetTypeRepository petTypeRepository) {
+		this.petRepository = petRepository;
+		this.ownerRepository = ownerRepository;
+        this.petTypeRepository = petTypeRepository;
 	}
 
 	@ModelAttribute("types")
 	public Collection<PetType> populatePetTypes() {
-		return this.pets.findPetTypes();
+		// return this.petRepository.findPetTypes();
+        return this.petTypeRepository.findAll();
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
-		return this.owners.findById(ownerId);
+		return this.ownerRepository.findById(ownerId);
 	}
 
 	@InitBinder("owner")
@@ -85,20 +95,38 @@ class PetController {
 		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
+		// if (!StringUtils.hasLength(pet.getType())) {
+		// 	result.rejectValue("type", "notFound", "error");
+		// }
+        
+        if (result.hasErrors()) {
+            logger.error("addPet error");
+			model.put("pet", pet);
+			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+		}
+        
+        logger.debug("addPet result.hasErrors()="+(result.hasErrors()?"error":"ok"));
+        logger.debug("addPet pet.getId()="+valueOf(pet.getId()));
+        logger.debug("addPet pet.getName()="+valueOf(pet.getName()));
+        logger.debug("addPet pet.getType()="+valueOf(pet.getType()));
+        logger.debug("addPet pet.getType().getId()="+valueOf(pet.getType().getId()));
+        logger.debug("addPet pet.getType().getName()="+valueOf(pet.getType().getName()));
+        
 		owner.addPet(pet);
 		if (result.hasErrors()) {
+            logger.error("addPet error2");
 			model.put("pet", pet);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			this.pets.save(pet);
+			this.petRepository.save(pet);
 			return "redirect:/owners/{ownerId}";
 		}
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm(@PathVariable("petId") int petId, ModelMap model) {
-		Pet pet = this.pets.findById(petId);
+		Pet pet = this.petRepository.findById(petId);
 		model.put("pet", pet);
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
@@ -112,9 +140,13 @@ class PetController {
 		}
 		else {
 			owner.addPet(pet);
-			this.pets.save(pet);
+			this.petRepository.save(pet);
 			return "redirect:/owners/{ownerId}";
 		}
 	}
+    
+    public static String valueOf(Object obj) {
+    return (obj == null) ? "null" : obj.toString();
+    }
 
 }

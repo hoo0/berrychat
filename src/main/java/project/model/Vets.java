@@ -27,12 +27,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author Arjen Poutsma
  */
-@XmlRootElement
+//@XmlRootElement
 public class Vets {
 
 	private List<Vet> vets;
 
-	@XmlElement
+	//@XmlElement
 	public List<Vet> getVetList() {
 		if (vets == null) {
 			vets = new ArrayList<>();
