@@ -2,6 +2,8 @@
 
     "use strict";
 
+    Dropzone.autoDiscover = false;
+
     $(document).ready(function() {
 
         //
