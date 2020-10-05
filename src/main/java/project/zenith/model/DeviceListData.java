@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Data implements Serializable {
+public class DeviceListData implements Serializable {
 
     private String td;
     private String name;

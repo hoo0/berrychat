@@ -1,7 +1,7 @@
 <script type="text/x-jquery-tmpl" id="deviceItem-template">
     {{each(index,item) list}}
     <!-- Device Item -->
-    <a class="text-reset nav-link p-0 mb-6" href="javascript:void(0)">
+    <a class="text-reset nav-link p-0 mb-6" id="item-${type}-${td}" data-td="${td}" data-type="${type}">
         <div class="card card-active-listener">
             <div class="card-body">
 
@@ -13,7 +13,7 @@
 
                     <div class="media-body overflow-hidden">
                         <div class="d-flex align-items-center mb-1">
-                            <h6 class="text-truncate mb-0 mr-auto">${td}</h6>
+                            <h6 class="text-truncate mb-0 mr-auto">${name2}</h6>
                             <!-- <p class="small text-muted text-nowrap ml-4">10:42 am</p> -->
 
                             <!-- Switch -->

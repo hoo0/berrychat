@@ -54,6 +54,18 @@ public class DialogflowHomeComponent extends DialogflowApp {
         return getResponseBuilder(request).add("2번에어컨을 껐다냥").build();
     }
     
+    @ForIntent("Turn On AirCon3")
+    public ActionResponse turnOnAirCon3(ActionRequest request) {
+        zenithService.doControlAsync("ac", "ac03", "on");
+        return getResponseBuilder(request).add("3번에어컨을 켰다냥").build();
+    }
+
+    @ForIntent("Turn Off AirCon3")
+    public ActionResponse turnOffAirCon3(ActionRequest request) {
+        zenithService.doControlAsync("ac", "ac03", "off");
+        return getResponseBuilder(request).add("3번에어컨을 껐다냥").build();
+    }
+    
     @ForIntent("Turn On AirCon All")
     public ActionResponse turnOnAirConAll(ActionRequest request) {
         zenithService.doControlAsync("ac", "ac01", "on");

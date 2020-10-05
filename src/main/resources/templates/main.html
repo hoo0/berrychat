@@ -11,7 +11,6 @@
         
         <link href="assets/css/template.css" rel="stylesheet">
         <link href="assets/css/template.dark.min.css" rel="stylesheet" media="(prefers-color-scheme: dark)">
-        <link href="assets/css/test.css" rel="stylesheet">
         
     </head>
     <!-- Head -->
@@ -77,7 +76,7 @@
 
                     <!-- Settings -->
                     <li class="nav-item mt-xl-9">
-                        <a class="nav-link position-relative p-0 py-xl-3" href="settings.html" title="Settings">
+                        <a class="nav-link position-relative p-0 py-xl-3" href="javascript:void(0)" title="Settings">
                             <i class="icon-lg fe-settings"></i>
                         </a>
                     </li>
@@ -190,37 +189,29 @@
                                     <h2 class="font-bold mb-6">Profile</h2>
                                     <!-- Title -->
 
-                                    <!-- Search -->
-                                    <form class="mb-6">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control form-control-lg" placeholder="Search for messages or users..." aria-label="Search for messages or users...">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-lg btn-ico btn-secondary btn-minimal" type="submit">
-                                                    <i class="fe-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <!-- Search -->
-
                                     <!-- Card -->
                                     <div class="card mb-6">
                                         <div class="card-body">
                                             <div class="text-center py-6">
                                                 <!-- Photo -->
                                                 <div class="avatar avatar-xl mb-5">
-                                                    <img class="avatar-img" src="assets/images/avatars/12.jpg" alt="">
+                                                    <!-- <img class="avatar-img" src="assets/images/avatars/12.jpg" alt=""> -->
                                                 </div>
 
-                                                <h5>Matthew Wiggins</h5>
-                                                <p class="text-muted">Bootstrap is an open source toolkit for developing web with HTML.</p>
+                                                <h5 id="houseNo">000동 0000호</h5>
+                                                <!-- <p class="text-muted">Bootstrap is an open source toolkit for developing web with HTML.</p> -->
                                             </div>
+                                            
+                                            
+
+                                <input type="number" value="26" min="18" max="30" step="0.5" id="temperature"/>
+
                                         </div>
                                     </div>
                                     <!-- Card -->
 
                                     <!-- Card -->
-                                    <div class="card mb-6">
+                                    <!-- <div class="card mb-6">
                                         <div class="card-body">
                                             <ul class="list-group list-group-flush">
                                                 <li class="list-group-item px-0 py-6">
@@ -264,7 +255,7 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <!-- Card -->
 
                                     <div class="form-row">
@@ -455,13 +446,56 @@
         </div>
         <!-- Layout -->
 
-        <div id="templates"></div>
+        <!-- Modal: Control Detail -->
+        <div class="modal fade" id="control-detail" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <div class="media flex-fill">
+                            <div class="icon-shape rounded-lg bg-primary text-white mr-5">
+                                <i class="fe-users"></i>
+                            </div>
+                            <div class="media-body align-self-center">
+                                <h5 class="modal-title">Detail</h5>
+                                <p class="small">온도 설정</p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form action="#">
+                            <div class="text-center" id="modal-spinner">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-lg btn-block btn-primary d-flex align-items-center">
+                            Apply
+                            <i class="fe-check ml-auto"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Modal: Invite friends -->
         
         <!-- Scripts -->
         <script src="assets/js/libs/jquery.min.js"></script>
         <script src="assets/js/bootstrap/bootstrap.bundle.min.js"></script>
         <script src="assets/js/plugins/plugins.bundle.js"></script>
-        <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <script src="//ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <script src="assets/js/libs/bootstrap-input-spinner.js"></script>
 
         <script src="assets/js/template.js"></script>
         <script src="assets/js/main.js"></script>

@@ -81,8 +81,7 @@ class ViewController {
             logger.debug("login = " + login.toString());
             
             if ("OK".equals(login.getResult())) {
-                // 세션에 저장
-                if (!StringUtils.isEmpty(login.getUid())) {
+                if (!StringUtils.isEmpty(login.getUid())) { /* 세션에 저장 */
                     sessionInfo.setUid(login.getUid());
                 }
             } else {

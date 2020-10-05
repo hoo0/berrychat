@@ -11,9 +11,9 @@ import lombok.Setter;
 public class DeviceList implements Serializable {
     private String result;
     private String message;
-    // private String uid;
+    private String uid;
     
-    private List<Data> data;
+    private List<DeviceListData> data;
     
     @Override
     public String toString() {
