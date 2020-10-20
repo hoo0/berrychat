@@ -16,18 +16,57 @@
     </div>
 
     <div class="modal-body">
+        
+        {{if type === 'temp'}}
+        <!-- Tabs -->
+        <ul class="nav nav-tabs nav-justified mb-6" role="tablist">
+            <li class="nav-item">
+                <a id="tabON" data-mode="ON" class="nav-link" data-toggle="tab" role="tab">ON</a>
+            </li>
+            <li class="nav-item">
+                <a id="tabOUT" data-mode="OUT" class="nav-link" data-toggle="tab" role="tab">외출</a>
+            </li>
+            <li class="nav-item">
+                <a id="tabOFF" data-mode="OFF" class="nav-link" data-toggle="tab" role="tab">OFF</a>
+            </li>
+        </ul>
+        <!-- Tabs -->
+		{{/if}}
+        
+        {{if type === 'ac'}}
+        <!-- Tabs -->
+        <ul class="nav nav-tabs nav-justified mb-6" role="tablist">
+            <li class="nav-item">
+                <a id="tabON" data-mode="ON" class="nav-link" data-toggle="tab" role="tab">ON</a>
+            </li>
+            <li class="nav-item">
+                <a id="tabOFF" data-mode="OFF" class="nav-link" data-toggle="tab" role="tab">OFF</a>
+            </li>
+        </ul>
+        <!-- Tabs -->
+		{{/if}}
 
-        <div class="form-group" id="modal-form">
-            <label for="temperature" class="small">Temperature <span id="modal-ct">현재 ${ct}도</span></label>
-            <input type="number" value="${ht}" min="18" max="30" step="1" data-decimals="1" id="temperature"/>
+        <label for="temperature" class="small">Temperature <span id="modal-ct">현재 ${ct}도</span></label>
+        <div class="form-group row mb-0" id="modal-form">
+            <div class="col-8 pr-0">
+                <input type="number" value="${tt}" min="18" max="30" step="1" data-decimals="1" id="temperature" disabled/>
+            </div>
+            <div class="col-4 text-right">
+                <button type="button" class="btn btn-primary d-none" data-td="${td}" data-type="${type}" id="modal-apply">
+                    Apply
+                    <i class="fe-check ml-auto"></i>
+                </button>
+            </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
+        <!--
         <button type="button" class="btn btn-lg btn-block btn-primary d-flex align-items-center" id="modal-apply" data-td="${td}" data-type="${type}">
             Apply
             <i class="fe-check ml-auto"></i>
         </button>
+        -->
     </div>
 </script>

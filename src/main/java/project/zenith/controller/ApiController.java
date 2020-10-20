@@ -19,6 +19,7 @@ import project.zenith.model.DeviceList;
 import project.zenith.model.Login;
 import project.zenith.model.Status;
 import project.zenith.service.ZenithService;
+import project.zenith.service.ZenithService2;
 
 @Controller
 @RequestMapping("/zenith/api")
@@ -27,31 +28,36 @@ class ApiController {
     
     @Autowired
     ZenithService zenithService;
+    @Autowired
+    ZenithService2 zenithService2;
     
 	@GetMapping("/login")
     @ResponseBody
 	public Login doLogin(@RequestParam("id") String id, 
                          @RequestParam("password") String password) {
-        return zenithService.doLogin(id, password);
+        return zenithService2.doLogin(id, password);
 	}
 
-	// @GetMapping("/list")
-	// @ResponseBody
-	// public Object list() {
-	// return zenithService.doList();
-	// }
-    
 	@GetMapping("/list")
     @ResponseBody
-	public DeviceList list2() {
-        return zenithService.doList2();
+	public DeviceList list() {
+        return zenithService2.doList();
 	}
     
 	@GetMapping("/status/{type}/{code}")
     @ResponseBody
-	public Status status(@PathVariable("type") String type, 
+	public Object status(@PathVariable("type") String type, 
                          @PathVariable("code") String code) {
-        return zenithService.doStatus(type, code);
+        return zenithService2.doStatus(type, code);
+	}
+
+    // ?uid=0010203806&_={{timestamp}}&type=light&code=lt03&cmd=set&power=100
+    // ?uid={uid}&_={timestamp}&type={type}&code={code}&cmd=set&cmd2={cmd2}&power={power}
+	@PostMapping("/control")
+    @ResponseBody
+	public Object control3(@RequestBody Map<String, Object> param) {
+        logger.debug("param=" + param);
+        return zenithService2.doControl(param);
 	}
     
 	@GetMapping("/control/{type}/{code}/{action}")
@@ -72,14 +78,4 @@ class ApiController {
         logger.debug(String.format("control2 : type=%s code=%s action=%s value=%d", type, code, action, value));
         return "control2";//zenithService.doControl(type, code, action, null, value);
 	}
-    
-    
-	@PostMapping("/control")
-    @ResponseBody
-	public Map<String, Object> control3(@RequestBody Map<String, Object> param) {
-        
-        logger.debug("param=" + param);
-        return param;//zenithService.doControl(type, code, action);
-	}
-
 }
