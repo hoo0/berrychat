@@ -16,6 +16,8 @@
 
 package project.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.slf4j.Logger;
@@ -26,13 +28,19 @@ class WelcomeController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@GetMapping("/")
-	public String welcome() {
-        logger.trace("Trace Level 테스트");
-        logger.debug("debug Level 테스트");
-        logger.info("info Level 테스트");
-        logger.warn("Warn Level 테스트");
-        logger.error("error Level 테스트");
-
+	public String welcome(HttpServletRequest request) {
+        // logger.trace("Trace Level 테스트");
+        // logger.debug("debug Level 테스트");
+        // logger.info("info Level 테스트");
+        // logger.warn("Warn Level 테스트");
+        // logger.error("error Level 테스트");
+        
+        String URL = request.getRequestURL().toString();
+        logger.info("URL=" + URL);
+        
+        if (URL.indexOf("://zenith2.duckdns.org") > 0 || URL.indexOf("://berrychat.run.goorm.io/") > 0) {
+            return "redirect:/zenith/";
+        }
 		return "welcome";
 	}
 

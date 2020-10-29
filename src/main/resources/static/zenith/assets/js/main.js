@@ -19,9 +19,11 @@
     var items = {};
     var detailData = {};
     var selectData = {};
+    var deviceListTimestamp = 0;
     var deviceItem_template = '';
     var modal_backup = '';
-    var houseNo = '';
+    var houseNo1 = '';
+    var houseNo2 = '';
     
     function getDeviceName( type, td ) {
         return td.length >= 2 ? code.type[type] + td.substring( td.length - 2 ) : td
@@ -41,7 +43,7 @@
     }
     function afterSetDevice( data, status ) {
         console.log( 'afterSetDevice: data', data );
-        if (checkSession(data) === 'FAIL') return;
+        if (checkSession(data) === 'LOGOUT') return;
 
         var delay = data.data.type === 'temp' ? 4000 : 1000;
         setTimeout(getDeviceList, delay);
@@ -60,7 +62,7 @@
     }
     function afterSetDevice2( data, status ) {
         console.log( 'afterSetDevice2: data', data );
-        if (checkSession(data) === 'FAIL') return;
+        if (checkSession(data) === 'LOGOUT') return;
         
         var delay = data.data.type === 'temp' ? 4000 : 1000;
         setTimeout(function() {
@@ -77,7 +79,7 @@
     }
     function afterGetDeviceList( data, status ) {
         console.log( 'afterGetDeviceList: data=', data );
-        if (checkSession(data) === 'FAIL') return;
+        if (checkSession(data) === 'LOGOUT' || data.result !== 'OK') return;
         
         deviceList = data.data;
         deviceList.sort( (a, b) => a.td < b.td ? -1 : a.td > b.td ? 1 : 0 );
@@ -106,12 +108,17 @@
     }
     
     function setHouseNo( houseNo ) {
-        // 00XXX0YYYY
-        houseNo = houseNo.length >= 10 ? Number( houseNo.substring(0,5) ) + '동 ' + Number( houseNo.substring(5,10) ) + '호' : houseNo;
+        // 00XXX0YYYY => xxx동 yyy호
+        if (houseNo.length >= 10) {
+            houseNo1 = Number( houseNo.substring(0,5) );
+            houseNo2 = Number( houseNo.substring(5,10) );
+            houseNo = houseNo1 + '동 ' + houseNo2 + '호';
+        }
         
 	    $.template( 'houseNoTemplate', '${houseNo}' );
-        $( '#houseNo' ).empty();
-	    $.tmpl( 'houseNoTemplate', {houseNo: houseNo} ).appendTo( '#houseNo' );
+        //$( '#houseNo' ).empty();
+	    //$.tmpl( 'houseNoTemplate', {houseNo: houseNo} ).appendTo( '#houseNo' );
+        $( '#houseNo' ).html( $.tmpl( 'houseNoTemplate', {houseNo: houseNo} ) );
     }
     
     function setItemsHtml( type ) {
@@ -120,21 +127,20 @@
 
         if ( $( target ).length <= 0 ) return;
         
-        // $( '#deviceItem-template' ).tmpl( {list: itemList} ).appendTo( target );
-        $( target ).empty();
-        $.tmpl( 'deviceItem-template', {list: itemList} ).appendTo( target );
+        $( target ).html( $.tmpl( 'deviceItem-template', {list: itemList} ) );
         
-        /* click event */
-        $( 'input:checkbox[id*=' + type + '-switch-]' ).click(function(e) {
+        /* power switch event */
+        $( 'input:checkbox[id*=' + type + '-switch-]' ).click( (e) => {
             console.log('checkbox-click: type=' + type);
             e.stopPropagation(); // 부모로 전파를 차단
+            var el = $(e.currentTarget);
 
-            $(this).prop( 'disabled', true );
-            setTimeout( checkboxEnable( $(this) ), 3000 );
+            el.prop( 'disabled', true );
+            setTimeout( checkboxEnable( el ), 3000 );
 
-            var chk = $(this).is( ':checked' );
-            var td = $(this).data( 'td' );
-            console.log( $(this).attr( 'id' ) + '/' + td + ' = ' + chk );
+            var chk = el.is( ':checked' );
+            var td = el.data( 'td' );
+            console.log( el.attr( 'id' ) + '/' + td + ' = ' + chk );
             
             changeMode({
                 type: type,
@@ -144,16 +150,18 @@
             });
         });
         
-        $( 'a[id*=item-' + type + ']' ).click(function(e) {
+        /* modal popup event */
+        $( 'a[id*=item-' + type + ']' ).click( (e) => {
             //e.preventDefault(); // 이벤트의 전파를 막지않고 그 이벤트를 취소
-            console.log('a-click e.target.tagName='+ e.target.tagName);            
+            // console.log('a-click e.target.tagName='+ e.target.tagName);
+            var el = $(e.currentTarget);
             if (e.target.tagName == 'LABEL') return;
 
-            var data_type = $(this).data( 'type' );
-            var data_td = $(this).data( 'td' );
+            var data_type = el.data( 'type' );
+            var data_td   = el.data( 'td'   );
             console.log('type=' + data_type +' td=' + data_td);
             
-            if ( data_type === 'ac' ||
+            if ( data_type === 'ac'   ||
                  data_type === 'temp' ) {
                 //선택
                 selectData.type = data_type;
@@ -162,7 +170,7 @@
                 //모달내용 초기화
                 $( '.modal-content' ).html( modal_backup );
                 //모달 띄우기, spinning
-                $('#control-detail').modal('show');
+                $( '#control-detail' ).modal( 'show' );
                 //데이터 로드
                 showModal();
             }
@@ -176,37 +184,36 @@
         };
     }
     
-    function setParams( type, td, mode ) {
+    function setParams( o ) {
         //type=light&code=lt01&cmd=set&power=100
         //type=ac&code=ac01&cmd=set&cmd2=power&power=1  &td=ac01&state=on  &status=&rm=0&ht=25&ct=27&ac=0&cc=0&sc=0&as=16&ef=0&rnt=0&rft=0&rt=0
         //type=temp&code=dt02&cmd=set&power=1  &rm=0&st=0&to=0&tf=0&ct=0&vs=0&rs=0&es=0
-        var power = mode === 'ON' || mode === 'OUT' ? (type === 'light' ? '100' : '1') : '0';
+        var power = o.mode === 'ON' || o.mode === 'OUT' ? (o.type === 'light' ? '100' : '1') : '0';
         var params = {
-            type: type,
-            code: td,
-            td: td,
+            type: o.type,
+            code: o.td,
+            td: o.td,
             cmd: 'set',
             power: power
         };
 
-        if (detailData.td !== undefined && detailData.td === td) {
+        if (detailData.td !== undefined && detailData.td === o.td) {
             if (detailData.type === 'ac') {
                 // params.ht = detailData.ht;
                 params.as = detailData.as;
                 params.ef = detailData.ef;
             }
         }
-        
 
-        if (type === 'ac') {
+        if (o.type === 'ac') {
             $.extend(params, {
-                state: mode.toLowerCase(),
+                state: o.mode.toLowerCase(),
                 cmd2: 'power'
             });
-        } else if (type === 'temp') {
+        } else if (o.type === 'temp') {
             $.extend(params, {
-                state: mode.toLowerCase(),
-                rm: mode === 'OUT' ? '4' : (mode === 'ON' ? '1' : '0'),
+                state: o.mode.toLowerCase(),
+                rm: o.mode === 'OUT' ? '4' : (o.mode === 'ON' ? '1' : '0'),
                 st: '25',
                 to: '254',
                 tf: '254',
@@ -220,7 +227,7 @@
     }
 
     function changeMode( o ) {
-        var params = setParams( o.type, o.td, o.mode );
+        var params = setParams( o );
         console.log('params=', params);
         
         if (o.action === 0) setDevice( params ); /* for list */
@@ -230,7 +237,7 @@
     function isEmpty( o, keyNames ) {
         keyNames.forEach( (key) => {
             if ( o[key] == undefined || o[key] == null || o[key] == '') return true;
-            console.log('isEmpty: '+key+'='+o[key]);
+            // console.log('isEmpty: '+key+'='+o[key]);
         });
         return false;
     }
@@ -244,7 +251,7 @@
         );
     }
     function afterShowModal( data, status ) {
-        console.log('afterShowModal: status=', status);
+        // console.log('afterShowModal: status=', status);
         console.log('afterShowModal: data=', data);
 
         if (isEmpty(data, ['data']) || isEmpty(data.data, ['type', 'td'])) return;
@@ -259,10 +266,9 @@
         console.log('o=', o);
         
         //spinning -> modal content
-        $( '.modal-content' ).empty();
-        $.tmpl( 'modal-template', o ).appendTo( '.modal-content' );
+        $( '.modal-content' ).html( $.tmpl( 'modal-template', o ) );
         
-        $( '#modal-form input[type=number]' ).inputSpinner({buttonsOnly: true});
+        $( '#temperature' ).inputSpinner({buttonsOnly: true});
         
         var mode = '';
         if (o.type === 'temp') {
@@ -279,33 +285,40 @@
         if (mode === 'ON' || mode === 'OUT' || mode === 'OFF') $( '#tab'+mode ).tab( 'show' );
 
         if (mode === 'ON') {
-            // 버튼활성화
-            $( '#modal-form input[type=number]' ).attr( 'disabled', false )
-            .on("change", function (event) {
+            // 온도spinner 보이기
+            $( '#modal-form' ).removeClass( 'd-none' );
+            
+            $( '#temperature' ).on("change", function (event) {
                 if ( o.tt != $(this).val() ) $( '#modal-apply' ).removeClass( 'd-none' );
                 else $( '#modal-apply' ).addClass( 'd-none' );
             })
+        } else {
+            $( '#modal-form' ).addClass( 'd-none' );
         }
         
-        $('a[data-toggle="tab"][id^="tab"]').on('shown.bs.tab', function (e) {
+        $('a[data-toggle="tab"][id^="tab"]').on('shown.bs.tab', (e) => {
+            // $( '#modal-form' ).addClass( 'd-none' );
+            $( '.modal-content' ).html( modal_backup );
+            
+            var el = $(e.currentTarget);
             var p = {
                 type: o.type,
                 td: o.td,
-                mode: $(this).data( 'mode' ),
+                mode: el.data( 'mode' ),
                 action: 1
             };
             console.log('p=', p);
             changeMode( p );
         })
         
-        $( '#modal-apply' ).click(function(e) {
+        $( '#modal-apply' ).click( (e) => {
             $( '#modal-apply' ).addClass( 'd-none' );
             
             console.log('selectData=', selectData);
             var value = $( '#temperature' ).val();
             if (selectData.td !== o.td) return;
 
-            var params = setParams( selectData.type, selectData.td, 'ON' );
+            var params = setParams( { type: selectData.type, td: selectData.td, mode: 'ON' });
             
             if (params.type === 'ac') {
                 params.cmd2 = 'condition';
@@ -324,10 +337,10 @@
         return newData;
     }
     
-    function checkSession(data) {
+    function checkSession( data ) {
         if (data.messageCode === 'session-expired') {
             document.location.href = '/zenith/login';
-            // return 'LOGOUT';
+            return 'LOGOUT';
         }
         return data.result ? data.result : 'FAIL';
     }
@@ -342,10 +355,10 @@
 
     //모달 백업
     modal_backup = $( '.modal-content' ).html();
-    console.log('모달백업');
+    // console.log('모달백업');
     
     $(document).ready(function() {
-        console.log('ready');
+        // console.log('ready');
         loadTemplates([
             'deviceItem',
             'modal',
@@ -353,10 +366,16 @@
         
         getDeviceList();
         
-        window.addEventListener('focus', function() {
-            //getDeviceList();
-            console.log('사용자가 웹페이지에 돌아왔습니다.');
+        window.addEventListener('focus', () => {
+            var timegap = (new Date()).getTime() - deviceListTimestamp;
+            console.log('사용자가 웹페이지에 돌아왔습니다.[' + timegap + ']');
+            // (timegap > 10 * 1000) && getDeviceList();
         }, false);
+        window.addEventListener('blur', () => {
+            console.log('사용자가 웹페이지를 떠났습니다.');
+            deviceListTimestamp = (new Date()).getTime();
+        }, false);
+        
     });
-
+    
 })(jQuery);

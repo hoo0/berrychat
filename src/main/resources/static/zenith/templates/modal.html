@@ -23,9 +23,11 @@
             <li class="nav-item">
                 <a id="tabON" data-mode="ON" class="nav-link" data-toggle="tab" role="tab">ON</a>
             </li>
+            {{if power === 255}}
             <li class="nav-item">
                 <a id="tabOUT" data-mode="OUT" class="nav-link" data-toggle="tab" role="tab">외출</a>
             </li>
+            {{/if}}
             <li class="nav-item">
                 <a id="tabOFF" data-mode="OFF" class="nav-link" data-toggle="tab" role="tab">OFF</a>
             </li>
@@ -46,12 +48,12 @@
         <!-- Tabs -->
 		{{/if}}
 
-        <label for="temperature" class="small">Temperature <span id="modal-ct">현재 ${ct}도</span></label>
+        <label for="temperature" class="small"><span id="modal-ct">현재 ${ct}도</span></label>
         <div class="form-group row mb-0" id="modal-form">
-            <div class="col-8 pr-0">
-                <input type="number" value="${tt}" min="18" max="30" step="1" data-decimals="1" id="temperature" disabled/>
+            <div class="col-7 pr-0">
+                <input type="number" value="${tt}" min="18" max="30" step="0.5" data-decimals="1" id="temperature" />
             </div>
-            <div class="col-4 text-right">
+            <div class="col-5 text-right">
                 <button type="button" class="btn btn-primary d-none" data-td="${td}" data-type="${type}" id="modal-apply">
                     Apply
                     <i class="fe-check ml-auto"></i>

@@ -31,51 +31,51 @@ class ApiController {
     @Autowired
     ZenithService2 zenithService2;
     
-	@GetMapping("/login")
+    @GetMapping("/login")
     @ResponseBody
-	public Login doLogin(@RequestParam("id") String id, 
+    public Login doLogin(@RequestParam("id") String id,
                          @RequestParam("password") String password) {
         return zenithService2.doLogin(id, password);
-	}
+    }
 
-	@GetMapping("/list")
+    @GetMapping("/list")
     @ResponseBody
-	public DeviceList list() {
+    public DeviceList list() {
         return zenithService2.doList();
-	}
+    }
     
-	@GetMapping("/status/{type}/{code}")
+    @GetMapping("/status/{type}/{code}")
     @ResponseBody
-	public Object status(@PathVariable("type") String type, 
+    public Object status(@PathVariable("type") String type, 
                          @PathVariable("code") String code) {
         return zenithService2.doStatus(type, code);
-	}
+    }
 
     // ?uid=0010203806&_={{timestamp}}&type=light&code=lt03&cmd=set&power=100
     // ?uid={uid}&_={timestamp}&type={type}&code={code}&cmd=set&cmd2={cmd2}&power={power}
-	@PostMapping("/control")
+    @PostMapping("/control")
     @ResponseBody
-	public Object control3(@RequestBody Map<String, Object> param) {
+    public Object control3(@RequestBody Map<String, Object> param) {
         logger.debug("param=" + param);
         return zenithService2.doControl(param);
-	}
+    }
     
-	@GetMapping("/control/{type}/{code}/{action}")
+    @GetMapping("/control/{type}/{code}/{action}")
     @ResponseBody
-	public Object control(@PathVariable("type") String type, 
+    public Object control(@PathVariable("type") String type, 
                           @PathVariable("code") String code,
                           @PathVariable("action") String action) {
         logger.debug(String.format("control : type=%s code=%s action=%s", type, code, action));
         return "control";//zenithService.doControl(type, code, action);
-	}
+    }
     
-	@GetMapping("/control/{type}/{code}/{action}/{value}")
+    @GetMapping("/control/{type}/{code}/{action}/{value}")
     @ResponseBody
-	public Object control2(@PathVariable("type") String type, 
+    public Object control2(@PathVariable("type") String type, 
                            @PathVariable("code") String code,
                            @PathVariable("action") String action,
                            @PathVariable("value") int value) {
         logger.debug(String.format("control2 : type=%s code=%s action=%s value=%d", type, code, action, value));
         return "control2";//zenithService.doControl(type, code, action, null, value);
-	}
+    }
 }
