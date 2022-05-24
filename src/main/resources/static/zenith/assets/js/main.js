@@ -13,7 +13,13 @@
             light : 'fe-sun',
             ac    : 'fe-wind',
             temp  : 'fe-thermometer',
+        },
+        name: {
+            ac_103 : '안방',
+            ac_106 : '거실1',
+            ac_107 : '거실2'
         }
+        
     };
     var deviceList = [];
     var items = {};
@@ -25,8 +31,15 @@
     var houseNo1 = '';
     var houseNo2 = '';
     
-    function getDeviceName( type, td ) {
-        return td.length >= 2 ? code.type[type] + td.substring( td.length - 2 ) : td
+    function getDeviceName( item ) {
+        console.log('item.td=', item.td);
+        return item.td.length >= 2 ? code.type[item.type] + item.td.substring( item.td.length - 2 ) : item.td;
+    }
+    
+    function getDeviceName2( item ) {
+        console.log('item=', item);
+        //console.log('name=', name);
+        return code.name[item.type+'_'+item.posCode] || getDeviceName( item );
     }
     
     function setDevice( data ) { /* for list */
@@ -57,12 +70,31 @@
           type: "POST",
           data: JSON.stringify( data ),
           contentType: "application/json; charset=utf-8",
-          success: afterSetDevice2
+          success: afterSetDevice2,
+          error : function( error ) {
+              console.log('error', error);
+              
+              $( '#modalAlert' ).show()
+              .on('closed.bs.alert', function () {
+                  $( '#control-detail' ).modal( 'hide' );
+                  getDeviceList();
+              });
+          }
         });
+        
+        $( '.modal-content' ).html( modal_backup );
     }
     function afterSetDevice2( data, status ) {
         console.log( 'afterSetDevice2: data', data );
         if (checkSession(data) === 'LOGOUT') return;
+        if (checkSession(data) !== 'OK') {
+            $( '#modalAlert' ).show()
+            .on('closed.bs.alert', function () {
+                $( '#control-detail' ).modal( 'hide' );
+                getDeviceList();
+            });
+            return;
+        }
         
         var delay = data.data.type === 'temp' ? 4000 : 1000;
         setTimeout(function() {
@@ -82,7 +114,7 @@
         if (checkSession(data) === 'LOGOUT' || data.result !== 'OK') return;
         
         deviceList = data.data;
-        deviceList.sort( (a, b) => a.td < b.td ? -1 : a.td > b.td ? 1 : 0 );
+        deviceList.sort( (a, b) => a.type < b.type ? -1 : a.type > b.type ? 1 :   a.posCode < b.posCode ? -1 : a.posCode > b.posCode ? 1 : 0 );
         
         initData();
         
@@ -90,7 +122,7 @@
             if ( items[item.type] === undefined ) items[item.type] = [];
             
             item.icon = code.icon[item.type]||'fe-help-circle';
-            item.name2 = getDeviceName( item.type, item.td );
+            item.name2 = getDeviceName2( item );
             
             items[item.type].push( item );
         });
@@ -260,7 +292,7 @@
         detailData = data.data;
         
         var o = data.data;
-        o.title = getDeviceName( data.data.type, data.data.td );
+        o.title = getDeviceName2( o );
         if (o.type === 'ac') o.tt = o.ht;
         else if (o.type === 'temp') o.tt = o.st;
         console.log('o=', o);

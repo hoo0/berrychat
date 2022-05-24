@@ -78,4 +78,37 @@ class ApiController {
         logger.debug(String.format("control2 : type=%s code=%s action=%s value=%d", type, code, action, value));
         return "control2";//zenithService.doControl(type, code, action, null, value);
     }
+    
+    
+    @GetMapping("/sid")
+    @ResponseBody
+    public Object sid() {
+        
+        // version
+        String version = "170602";
+        // private key.
+        String privateKey = "e00bc84be189dce9"; // 16byte = 128bit AES.
+        // wctNo
+        String wctNo = "24001";
+
+        ////////////////////////////////////////////////////////////////////////////
+        // sid generation
+        String sid = project.util.util.generateSID(privateKey, wctNo);
+        System.out.println("sid="+ sid);
+        ////////////////////////////////////////////////////////////////////////////
+
+        System.out.println();
+        System.out.println();
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        // 아래는 코레일의 API 서버 로직. Below is KORAIL's API server logic
+        // sid check
+        boolean sidCheck = project.util.util.checkSID(privateKey, wctNo, sid);
+        System.out.println("sidCheck="+ (sidCheck?"true":"false"));
+        ////////////////////////////////////////////////////////////////////////////
+        
+        return sid;
+    }
+    
 }
